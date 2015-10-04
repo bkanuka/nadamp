@@ -31,12 +31,18 @@ class Amp:
                 (False, False, False): 0,
                 }
 
-    def get_amp_id(self):
-        try:
-            client = self.get_client()
-            config = client.get_config()
-        finally:
-            client.disconnect(send_close=True)
+        self.sourcemap = {
+                'bluetooth' : 'InputBluetooth',
+                'aux1' : 'InputAux1',
+                'aux2' : 'InputAux2',
+                'coax' : 'InputCoax2',
+                'usb' : 'InputComputer',
+                'optical1' : 'InputOptical1',
+                'optical2' : 'InputOptical2',
+                }
+
+    def get_amp_id(self, client):
+        config = client.get_config()
 
         dev = [ dev for dev in config['device'] if dev['label'] == u'NAD Amp' ][0]
         self.amp_id = dev['id']
@@ -69,6 +75,22 @@ class Amp:
         db = self.volmap[gpio_val]
         vol = self.db_to_vol(db)
         return vol
+
+    def set_source(self, source):
+        if source not in self.sourcemap.keys():
+            raise ValueError("Source must be one of: " + str(self.sourcemap.keys()))
+
+        try:
+            client = self.get_client()
+
+            if not self.amp_id:
+                self.get_amp_id(client)
+
+            client.send_command(self.amp_id, self.sourcemap[source])
+
+        finally:
+            client.disconnect(send_close=True)
+
 
     def set_vol(self, x):
         if x < 0 or x > 100:
@@ -105,12 +127,12 @@ class Amp:
 
     def volume_up(self, client):
         if not self.amp_id:
-            self.get_amp_id()
+            self.get_amp_id(client)
 
         client.send_command(self.amp_id, "VolumeUp")
 
     def volume_down(self, client):
         if not self.amp_id:
-            self.get_amp_id()
+            self.get_amp_id(client)
 
         client.send_command(self.amp_id, "VolumeDown")
