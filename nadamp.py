@@ -73,14 +73,13 @@ class Amp:
 
         client = self.get_client()
         try:
-
             if not self.amp_id:
                 self.get_amp_id(client)
 
             client.send_command(self.amp_id, self.sourcemap[source])
 
         finally:
-            client.disconnect(send_close=True)
+            client.disconnect(wait=True, send_close=True)
 
     def db_to_vol(self, x):
         return (16.5/20) * x + 99
@@ -129,7 +128,7 @@ class Amp:
                 vol = vol + 16.5/4.9
 
         finally:
-            client.disconnect(send_close=True)
+            client.disconnect(wait=True, send_close=True)
 
     def volume_up(self, client):
         if not self.amp_id:
