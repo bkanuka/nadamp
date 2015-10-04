@@ -1,7 +1,12 @@
 import sys
 import time
-import RPIO
-RPIO.setwarnings(False)
+
+try:
+    import RPIO
+    RPIO.setwarnings(False)
+    RASPI = True
+except:
+    RASPI = False
 
 from pyharmony import auth
 from pyharmony import client as harmony_client
@@ -15,21 +20,22 @@ class Amp:
 
         self.amp_id = None
 
-        RPIO.setup(19, RPIO.OUT, initial=RPIO.HIGH)
-        RPIO.setup(5, RPIO.IN)
-        RPIO.setup(6, RPIO.IN)
-        RPIO.setup(13, RPIO.IN)
+        if RASPI:
+            RPIO.setup(19, RPIO.OUT, initial=RPIO.HIGH)
+            RPIO.setup(5, RPIO.IN)
+            RPIO.setup(6, RPIO.IN)
+            RPIO.setup(13, RPIO.IN)
 
-        self.volmap = {
-                (True, True, True): -120,
-                (False, True, True): -120,
-                (True, False, True): -100,
-                (False, False, True): -80,
-                (True, True, False): -60,
-                (False, True, False): -40,
-                (True, False, False): -20,
-                (False, False, False): 0,
-                }
+            self.volmap = {
+                    (True, True, True): -120,
+                    (False, True, True): -120,
+                    (True, False, True): -100,
+                    (False, False, True): -80,
+                    (True, True, False): -60,
+                    (False, True, False): -40,
+                    (True, False, False): -20,
+                    (False, False, False): 0,
+                    }
 
         self.sourcemap = {
                 'bluetooth' : 'InputBluetooth',
@@ -40,12 +46,6 @@ class Amp:
                 'optical1' : 'InputOptical1',
                 'optical2' : 'InputOptical2',
                 }
-
-    def get_amp_id(self, client):
-        config = client.get_config()
-
-        dev = [ dev for dev in config['device'] if dev['label'] == u'NAD Amp' ][0]
-        self.amp_id = dev['id']
 
     def get_client(self):
         token = auth.login(self.email, self.password)
@@ -61,6 +61,27 @@ class Amp:
             self.harmony_ip, self.harmony_port, session_token)
         return client
 
+    def get_amp_id(self, client):
+        config = client.get_config()
+
+        dev = [ dev for dev in config['device'] if dev['label'] == u'NAD Amp' ][0]
+        self.amp_id = dev['id']
+
+    def set_source(self, source):
+        if source not in self.sourcemap.keys():
+            raise ValueError("Source must be one of: " + str(self.sourcemap.keys()))
+
+        client = self.get_client()
+        try:
+
+            if not self.amp_id:
+                self.get_amp_id(client)
+
+            client.send_command(self.amp_id, self.sourcemap[source])
+
+        finally:
+            client.disconnect(send_close=True)
+
     def db_to_vol(self, x):
         return (16.5/20) * x + 99
 
@@ -75,21 +96,6 @@ class Amp:
         db = self.volmap[gpio_val]
         vol = self.db_to_vol(db)
         return vol
-
-    def set_source(self, source):
-        if source not in self.sourcemap.keys():
-            raise ValueError("Source must be one of: " + str(self.sourcemap.keys()))
-
-        try:
-            client = self.get_client()
-
-            if not self.amp_id:
-                self.get_amp_id(client)
-
-            client.send_command(self.amp_id, self.sourcemap[source])
-
-        finally:
-            client.disconnect(send_close=True)
 
 
     def set_vol(self, x):
