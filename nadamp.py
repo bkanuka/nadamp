@@ -26,16 +26,16 @@ class Amp:
             RPIO.setup(6, RPIO.IN)
             RPIO.setup(13, RPIO.IN)
 
-            self.volmap = {
-                    (True, True, True): -120,
-                    (False, True, True): -120,
-                    (True, False, True): -100,
-                    (False, False, True): -80,
-                    (True, True, False): -60,
-                    (False, True, False): -40,
-                    (True, False, False): -20,
-                    (False, False, False): 0,
-                    }
+        self.volmap = {
+                (True, True, True): -120,
+                (False, True, True): -120,
+                (True, False, True): -100,
+                (False, False, True): -80,
+                (True, True, False): -60,
+                (False, True, False): -40,
+                (True, False, False): -20,
+                (False, False, False): 0,
+                }
 
         self.sourcemap = {
                 'bluetooth' : 'InputBluetooth',
