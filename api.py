@@ -21,7 +21,7 @@ class Main(Resource):
         args = parser.parse_args()
 
         if args.get('vol', False):
-            amp.set_vol(args['temp'])
+            amp.set_vol(args['vol'])
 
         r = amp.get_vol()
         return r
