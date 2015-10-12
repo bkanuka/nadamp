@@ -67,20 +67,6 @@ class Amp:
         dev = [ dev for dev in config['device'] if dev['label'] == u'NAD Amp' ][0]
         self.amp_id = dev['id']
 
-    def set_source(self, source):
-        if source not in self.sourcemap.keys():
-            raise ValueError("Source must be one of: " + str(self.sourcemap.keys()))
-
-        client = self.get_client()
-        try:
-            if not self.amp_id:
-                self.get_amp_id(client)
-
-            client.send_command(self.amp_id, self.sourcemap[source])
-
-        finally:
-            client.disconnect(wait=True, send_close=True)
-
     def db_to_vol(self, x):
         return (16.5/20) * x + 99
 
@@ -96,6 +82,17 @@ class Amp:
         vol = self.db_to_vol(db)
         return vol
 
+    def volume_up(self, client):
+        if not self.amp_id:
+            self.get_amp_id(client)
+
+        client.send_command(self.amp_id, "VolumeUp")
+
+    def volume_down(self, client):
+        if not self.amp_id:
+            self.get_amp_id(client)
+
+        client.send_command(self.amp_id, "VolumeDown")
 
     def set_vol(self, x):
         if x < 0 or x > 100:
@@ -130,14 +127,16 @@ class Amp:
         finally:
             client.disconnect(wait=True, send_close=True)
 
-    def volume_up(self, client):
-        if not self.amp_id:
-            self.get_amp_id(client)
+    def set_source(self, source):
+        if source not in self.sourcemap.keys():
+            raise ValueError("Source must be one of: " + str(self.sourcemap.keys()))
 
-        client.send_command(self.amp_id, "VolumeUp")
+        client = self.get_client()
+        try:
+            if not self.amp_id:
+                self.get_amp_id(client)
 
-    def volume_down(self, client):
-        if not self.amp_id:
-            self.get_amp_id(client)
+            client.send_command(self.amp_id, self.sourcemap[source])
 
-        client.send_command(self.amp_id, "VolumeDown")
+        finally:
+            client.disconnect(wait=True, send_close=True)
