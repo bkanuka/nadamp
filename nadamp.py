@@ -82,12 +82,14 @@ class Amp:
             self.get_amp_id(client)
 
         client.send_command(self.amp_id, "VolumeUp")
+        time.sleep(0.5)
 
     def volume_down(self, client):
         if not self.amp_id:
             self.get_amp_id(client)
 
         client.send_command(self.amp_id, "VolumeDown")
+        time.sleep(0.5)
 
     def set_vol(self, x):
         if x < 0 or x > 100:
@@ -108,7 +110,7 @@ class Amp:
             while self.get_vol() == orig_max_vol:
                 self.volume_down(client)
                 count = count + 1
-                if count > 10:
+                if count > 15:
                     raise AssertionError('Pressed VolumeDown and no change. Is the Amp on?')
 
             while self.get_vol() > x:
