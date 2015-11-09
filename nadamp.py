@@ -1,12 +1,8 @@
 import sys
 import time
 
-try:
-    import RPIO
-    RPIO.setwarnings(False)
-    RASPI = True
-except:
-    RASPI = False
+import RPIO
+#RPIO.setwarnings(False)
 
 from pyharmony import auth
 from pyharmony import client as harmony_client
@@ -20,11 +16,10 @@ class Amp:
 
         self.amp_id = None
 
-        if RASPI:
-            RPIO.setup(19, RPIO.OUT, initial=RPIO.HIGH)
-            RPIO.setup(5, RPIO.IN)
-            RPIO.setup(6, RPIO.IN)
-            RPIO.setup(13, RPIO.IN)
+        RPIO.setup(19, RPIO.OUT, initial=RPIO.HIGH)
+        RPIO.setup(5, RPIO.IN)
+        RPIO.setup(6, RPIO.IN)
+        RPIO.setup(13, RPIO.IN)
 
         self.volmap = {
                 (True, True, True): -120,
