@@ -1,1 +1,5 @@
 *.pyc
+build/
+dist/
+pyharmony.egg-info
+*.egg-info

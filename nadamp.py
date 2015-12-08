@@ -110,7 +110,7 @@ class Amp:
             while self.get_vol() == orig_max_vol:
                 self.volume_down(client)
                 count = count + 1
-                if count > 15:
+                if count > 30:
                     raise AssertionError('Pressed VolumeDown and no change. Is the Amp on?')
 
             while self.get_vol() > x:
@@ -119,7 +119,7 @@ class Amp:
             vol = self.get_vol()
             while vol < x:
                 self.volume_up(client)
-                vol = vol + 16.5/4.9
+                vol = vol + 16.5/10
 
         finally:
             client.disconnect(wait=True, send_close=True)
